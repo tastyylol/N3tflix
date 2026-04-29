@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="description" content="N3tflix - Sua biblioteca de vídeos offline">
+    <meta name="theme-color" content="#141414">
+    <title>N3tflix | Sua Biblioteca Offline</title>
+    <link rel="icon" href="n3tflix.ico" type="image/x-icon">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen" role="status" aria-label="Carregando biblioteca">
+        <div class="netflix-loader" aria-hidden="true"></div>
+        <p>Carregando sua biblioteca...</p>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar" role="navigation" aria-label="Navegação principal">
+        <div class="nav-container">
+            <div class="logo" role="banner">
+                <i class="fas fa-play-circle" aria-hidden="true"></i>
+                <span>N3t<span class="flix">flix</span></span>
+            </div>
+            <div class="nav-links" role="menubar">
+                <a href="#" class="nav-link active" data-filter="all" role="menuitem">
+                    <i class="fas fa-home" aria-hidden="true"></i> Início
+                </a>
+                <a href="#" class="nav-link" data-filter="series" role="menuitem">
+                    <i class="fas fa-tv" aria-hidden="true"></i> Séries
+                </a>
+                <a href="#" class="nav-link" data-filter="recent" role="menuitem">
+                    <i class="fas fa-clock" aria-hidden="true"></i> Recentes
+                </a>
+                <a href="#" class="nav-link" data-filter="watched" role="menuitem">
+                    <i class="fas fa-eye" aria-hidden="true"></i> Assistidos
+                </a>
+            </div>
+            <div class="nav-actions">
+                <button class="search-toggle" id="searchToggle" aria-label="Abrir busca" aria-expanded="false">
+                    <i class="fas fa-search" aria-hidden="true"></i>
+                </button>
+                <button class="sort-btn" id="sortBtn" aria-label="Ordenar" title="Ordenar">
+                    <i class="fas fa-sort" aria-hidden="true"></i>
+                </button>
+                <button class="refresh-btn" id="refreshBtn" aria-label="Atualizar biblioteca">
+                    <i class="fas fa-sync-alt" aria-hidden="true"></i>
+                </button>
+                <div class="user-info" aria-label="Total de itens">
+                    <i class="fas fa-database" aria-hidden="true"></i>
+                    <span id="videoCount">0</span>
+                </div>
+            </div>
+        </div>
+        <div class="search-bar-container" id="searchBar" aria-hidden="true">
+            <div class="search-wrapper">
+                <i class="fas fa-search" aria-hidden="true"></i>
+                <input type="search" id="searchInput" placeholder="Buscar séries, vídeos..." aria-label="Buscar" autocomplete="off">
+                <button id="closeSearch" aria-label="Fechar busca"><i class="fas fa-times" aria-hidden="true"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero" id="hero">
+        <div class="hero-backdrop" aria-hidden="true"></div>
+        <div class="hero-content">
+            <h1 class="hero-title">Sua Biblioteca <span class="highlight">Offline</span></h1>
+            <p class="hero-subtitle">Filmes, séries e vídeos — sem internet, qualidade máxima</p>
+            <div class="hero-stats" role="list" aria-label="Estatísticas">
+                <div class="stat" role="listitem">
+                    <i class="fas fa-video" aria-hidden="true"></i>
+                    <span id="totalVideos">0</span>
+                    <span>Vídeos</span>
+                </div>
+                <div class="stat" role="listitem">
+                    <i class="fas fa-tv" aria-hidden="true"></i>
+                    <span id="totalSeries">0</span>
+                    <span>Séries</span>
+                </div>
+                <div class="stat" role="listitem">
+                    <i class="fas fa-hdd" aria-hidden="true"></i>
+                    <span id="totalSize">0 GB</span>
+                    <span>Armazenamento</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Sort Dropdown -->
+    <div class="sort-dropdown" id="sortDropdown" aria-hidden="true" role="menu">
+        <button data-sort="newest" class="sort-option active" role="menuitem">
+            <i class="fas fa-calendar-alt" aria-hidden="true"></i> Mais recentes
+        </button>
+        <button data-sort="oldest" class="sort-option" role="menuitem">
+            <i class="fas fa-calendar" aria-hidden="true"></i> Mais antigos
+        </button>
+        <button data-sort="title" class="sort-option" role="menuitem">
+            <i class="fas fa-sort-alpha-down" aria-hidden="true"></i> A–Z
+        </button>
+        <button data-sort="size" class="sort-option" role="menuitem">
+            <i class="fas fa-weight-hanging" aria-hidden="true"></i> Tamanho
+        </button>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content" role="main">
+        <!-- Continue Watching -->
+        <section class="section" id="continueSection" aria-label="Continuar assistindo" style="display:none">
+            <div class="section-header">
+                <h2><i class="fas fa-history" aria-hidden="true"></i> Continuar Assistindo</h2>
+                <div class="section-nav-group">
+                    <button class="section-nav" id="continuePrev" aria-label="Anterior"><i class="fas fa-chevron-left"></i></button>
+                    <button class="section-nav" id="continueNext" aria-label="Próximo"><i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div>
+            <div class="video-row" id="continueWatching" role="list"></div>
+        </section>
+
+        <!-- Series Section -->
+        <section class="section" id="seriesSection" aria-label="Séries" style="display:none">
+            <div class="section-header">
+                <h2><i class="fas fa-tv" aria-hidden="true"></i> Séries</h2>
+                <div class="section-nav-group">
+                    <button class="section-nav" id="seriesPrev" aria-label="Anterior"><i class="fas fa-chevron-left"></i></button>
+                    <button class="section-nav" id="seriesNext" aria-label="Próximo"><i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div>
+            <div class="video-row" id="seriesRow" role="list"></div>
+        </section>
+
+        <!-- All Videos -->
+        <section class="section" aria-label="Biblioteca de vídeos">
+            <div class="section-header">
+                <h2><i class="fas fa-film" aria-hidden="true"></i> <span id="libraryTitle">Minha Biblioteca</span></h2>
+                <div class="view-options" role="group" aria-label="Modo de visualização">
+                    <button class="view-btn active" data-view="grid" aria-label="Grade" aria-pressed="true"><i class="fas fa-th"></i></button>
+                    <button class="view-btn" data-view="list" aria-label="Lista" aria-pressed="false"><i class="fas fa-list"></i></button>
+                </div>
+            </div>
+            <div class="videos-container" id="videoGrid" role="list"></div>
+        </section>
+    </main>
+
+    <!-- ════════════════════════════════════════════════════════════
+         SERIES MODAL
+    ═══════════════════════════════════════════════════════════════ -->
+    <div id="seriesModal" class="series-modal" role="dialog" aria-modal="true" aria-label="Episódios da série" style="display:none">
+        <div class="series-modal-backdrop" id="seriesModalBackdrop"></div>
+        <div class="series-modal-panel">
+
+            <!-- Header -->
+            <div class="series-modal-header">
+                <div class="series-hero-thumb" id="seriesHeroThumb">
+                    <canvas id="seriesHeroCanvas"></canvas>
+                    <div class="series-hero-overlay"></div>
+                </div>
+                <div class="series-modal-meta">
+                    <div class="series-badge"><i class="fas fa-tv"></i> SÉRIE</div>
+                    <h2 id="seriesModalTitle">—</h2>
+                    <div class="series-stats-row">
+                        <span id="seriesEpCount"><i class="fas fa-list-ol"></i> 0 episódios</span>
+                        <span id="seriesSeasonCount"><i class="fas fa-layer-group"></i> 0 temporadas</span>
+                        <span id="seriesSize"><i class="fas fa-hdd"></i> —</span>
+                    </div>
+                    <div class="series-actions">
+                        <button class="series-play-btn" id="seriesPlayNextBtn">
+                            <i class="fas fa-play"></i> Continuar / Assistir
+                        </button>
+                    </div>
+                </div>
+                <button class="series-modal-close" id="seriesModalClose" aria-label="Fechar">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Episodes -->
+            <div class="series-modal-body" id="seriesModalBody">
+                <!-- Seasons/episodes injected by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════
+         VIDEO PLAYER MODAL
+    ═══════════════════════════════════════════════════════════════ -->
+    <div id="videoModal" class="video-modal" role="dialog" aria-modal="true" aria-label="Player de vídeo" style="display:none">
+        <div class="modal-container">
+            <div class="video-wrapper" id="videoWrapper">
+                <video id="videoPlayer" class="custom-player" preload="auto" playsinline></video>
+
+                <!-- Skip Indicators -->
+                <div class="skip-indicator skip-back" id="skipBack" aria-hidden="true">
+                    <i class="fas fa-backward"></i><span>10s</span>
+                </div>
+                <div class="skip-indicator skip-fwd" id="skipFwd" aria-hidden="true">
+                    <i class="fas fa-forward"></i><span>10s</span>
+                </div>
+
+                <!-- Player Controls -->
+                <div class="player-controls" id="playerControls" role="toolbar" aria-label="Controles">
+                    <div class="progress-container" role="slider" aria-label="Progresso" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
+                        <div class="progress-bar-bg" id="progressBarBg">
+                            <div class="progress-buffered" id="progressBuffered"></div>
+                            <div class="progress-fill" id="progressFill"></div>
+                            <div class="progress-hover" id="progressHover"></div>
+                            <div class="progress-thumb" id="progressThumb"></div>
+                        </div>
+                        <div class="progress-tooltip" id="progressTooltip">0:00</div>
+                    </div>
+
+                    <div class="controls-wrapper">
+                        <div class="controls-left">
+                            <button class="control-btn" id="playPauseBtn" aria-label="Reproduzir"><i class="fas fa-play"></i></button>
+                            <button class="control-btn" id="prevEpBtn" aria-label="Episódio anterior" title="Ep anterior" style="display:none">
+                                <i class="fas fa-step-backward"></i>
+                            </button>
+                            <button class="control-btn" id="nextEpBtn" aria-label="Próximo episódio" title="Próximo ep" style="display:none">
+                                <i class="fas fa-step-forward"></i>
+                            </button>
+                            <button class="control-btn" id="skipBackBtn" aria-label="Voltar 10s"><i class="fas fa-rotate-left"></i><span class="btn-label">10</span></button>
+                            <button class="control-btn" id="skipFwdBtn" aria-label="Avançar 10s"><i class="fas fa-rotate-right"></i><span class="btn-label">10</span></button>
+                            <div class="volume-group">
+                                <button class="control-btn" id="volumeBtn" aria-label="Volume"><i class="fas fa-volume-up"></i></button>
+                                <div class="volume-slider-container">
+                                    <input type="range" id="volumeSlider" class="volume-slider" min="0" max="100" value="100" aria-label="Volume">
+                                </div>
+                            </div>
+                            <div class="time-display">
+                                <span id="currentTime">0:00</span>
+                                <span aria-hidden="true"> / </span>
+                                <span id="duration">0:00</span>
+                            </div>
+                        </div>
+                        <div class="controls-right">
+                            <div class="episode-label" id="episodeLabelPlayer"></div>
+                            <button class="control-btn" id="speedBtn" aria-label="Velocidade"><span class="speed-label">1×</span></button>
+                            <button class="control-btn" id="pipBtn" aria-label="Picture-in-picture"><i class="fas fa-external-link-alt"></i></button>
+                            <button class="control-btn" id="fullscreenBtn" aria-label="Tela cheia"><i class="fas fa-expand"></i></button>
+                            <button class="control-btn" id="closePlayerBtn" aria-label="Fechar"><i class="fas fa-times"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Title Overlay -->
+                <div class="video-title-overlay" id="videoTitleOverlay">
+                    <span id="modalVideoTitle"></span>
+                </div>
+
+                <!-- Next Episode Card -->
+                <div class="next-ep-card" id="nextEpCard" style="display:none">
+                    <div class="next-ep-label">A seguir</div>
+                    <div class="next-ep-title" id="nextEpTitle"></div>
+                    <div class="next-ep-actions">
+                        <button id="nextEpPlayNow"><i class="fas fa-play"></i> Reproduzir agora</button>
+                        <button id="nextEpDismiss"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div class="next-ep-countdown" id="nextEpCountdown"></div>
+                </div>
+
+                <!-- Loading -->
+                <div class="player-loading" id="playerLoading" aria-hidden="true">
+                    <div class="loading-spinner"></div>
+                </div>
+
+                <!-- Center Flash -->
+                <div class="center-action-flash" id="centerFlash" aria-hidden="true">
+                    <i class="fas fa-play" id="centerFlashIcon"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="toast" role="alert" aria-live="polite"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
